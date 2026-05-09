@@ -245,7 +245,7 @@ export function WorkoutRoom() {
   // ── NOW it is safe to do conditional returns ──
 
   if (!task) return <Navigate to="/quest" replace />
-  if (task.completed && !settled) return <Navigate to="/quest" replace />
+  // task.completed 时不再自动跳转，改为在预览页展示"已完成"态，避免页面一闪而过
 
   // ── Computed values (after redirect guards) ──
   const comboProgress = Math.min(squadCompleted, COMBO_NEEDED)
@@ -353,14 +353,28 @@ export function WorkoutRoom() {
               ))}
             </div>
 
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={handleStart}
-              className="px-10 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xl font-black shadow-lg shadow-purple-500/30"
-            >
-              开始运动 🚀
-            </motion.button>
+            {task.completed ? (
+              <div className="flex flex-col items-center gap-3">
+                <div className="px-6 py-3 rounded-2xl bg-green-500/20 border border-green-500/40 text-green-400 font-bold text-base">
+                  ✓ 今日已完成打卡
+                </div>
+                <button
+                  onClick={() => navigate('/quest')}
+                  className="text-gray-400 text-sm hover:text-white transition-colors"
+                >
+                  ← 返回任务列表
+                </button>
+              </div>
+            ) : (
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={handleStart}
+                className="px-10 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xl font-black shadow-lg shadow-purple-500/30"
+              >
+                开始运动 🚀
+              </motion.button>
+            )}
           </motion.div>
         ) : (
           /* ── Workout active screen ── */
