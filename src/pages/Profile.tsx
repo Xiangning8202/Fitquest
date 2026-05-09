@@ -40,7 +40,7 @@ export function Profile() {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-950 app-page">
+    <div className="min-h-full bg-gray-950 app-page">
       <div className="fixed inset-0 bg-gradient-to-br from-purple-950/20 via-gray-950 to-pink-950/20 pointer-events-none" />
 
       <div className="relative max-w-lg mx-auto px-4 py-5 space-y-5">

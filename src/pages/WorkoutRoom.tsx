@@ -297,7 +297,7 @@ export function WorkoutRoom() {
   // ── JSX ──────────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-gray-950 flex flex-col">
+    <div className="h-dvh sm:h-full bg-gray-950 flex flex-col">
       {/* Phase-colored background */}
       <motion.div
         key={phaseIdx}
@@ -322,7 +322,7 @@ export function WorkoutRoom() {
       </AnimatePresence>
 
       {/* Fixed header */}
-      <header className="fixed-in-frame fixed top-0 left-0 right-0 z-30 bg-gray-950/85 backdrop-blur-md border-b border-gray-800 px-4 py-3 flex items-center gap-3">
+      <header className="fixed left-0 right-0 top-0 z-30 sm:relative sm:top-auto sm:left-auto sm:right-auto flex-shrink-0 bg-gray-950/85 backdrop-blur-md border-b border-gray-800 px-4 py-3 flex items-center gap-3">
         <button
           onClick={() => { cancel(); navigate('/quest') }}
           className="text-gray-400 hover:text-white transition-colors text-sm px-1"
@@ -350,7 +350,7 @@ export function WorkoutRoom() {
       </header>
 
       {/* Overall progress bar */}
-      <div className="fixed top-[57px] left-0 right-0 z-30 h-0.5 bg-gray-800">
+      <div className="fixed top-[57px] left-0 right-0 z-30 sm:relative sm:top-auto sm:left-auto sm:right-auto flex-shrink-0 h-0.5 bg-gray-800">
         <motion.div
           className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
           animate={{ width: `${overallProgress}%` }}
@@ -359,7 +359,7 @@ export function WorkoutRoom() {
       </div>
 
       {/* Scrollable content */}
-      <main className="flex-1 overflow-y-auto pt-20 pb-40 px-4 max-w-lg mx-auto w-full space-y-4">
+      <main className="flex-1 overflow-y-auto no-scrollbar pt-20 pb-40 sm:pt-4 sm:pb-6 px-4 max-w-lg mx-auto w-full space-y-4">
 
         {/* ── Pre-start screen ── */}
         {!started ? (
@@ -624,7 +624,7 @@ export function WorkoutRoom() {
 
       {/* Fixed bottom controls (only when started) */}
       {started && (
-        <div className="fixed-in-frame fixed bottom-0 left-0 right-0 z-30 bg-gray-950/90 backdrop-blur-md border-t border-gray-800 p-4 space-y-3 nav-safe">
+        <div className="fixed left-0 right-0 bottom-0 z-30 sm:relative sm:bottom-auto sm:left-auto sm:right-auto flex-shrink-0 bg-gray-950/90 backdrop-blur-md border-t border-gray-800 p-4 space-y-3 nav-safe">
           <div className="flex gap-2 max-w-lg mx-auto">
             <button
               onClick={handlePauseResume}
