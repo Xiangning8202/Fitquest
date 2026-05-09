@@ -479,18 +479,6 @@ export function WorkoutRoom() {
               </div>
             </div>
 
-            {/* Stats preview */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-3 text-center">
-                <div className="text-blue-400 font-black text-2xl">+{task.xpReward}</div>
-                <div className="text-gray-400 text-xs mt-0.5">即将获得 XP</div>
-              </div>
-              <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-3 text-center">
-                <div className="text-red-400 font-black text-2xl">-{task.damage}</div>
-                <div className="text-gray-400 text-xs mt-0.5">即将造成伤害</div>
-              </div>
-            </div>
-
             {/* Squad online */}
             <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4">
               <div className="flex items-center justify-between mb-3">
@@ -528,31 +516,6 @@ export function WorkoutRoom() {
                   </motion.div>
                 ))}
               </div>
-            </div>
-
-            {/* Combo strike */}
-            <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-white font-bold text-sm">⚡ 今日宿舍合击</p>
-                <span className={`text-sm font-black ${comboProgress >= COMBO_NEEDED ? 'text-yellow-400' : 'text-gray-400'}`}>
-                  {comboProgress} / {COMBO_NEEDED}
-                </span>
-              </div>
-              <div className="flex gap-1.5 mb-2">
-                {Array.from({ length: COMBO_NEEDED }).map((_, i) => (
-                  <motion.div
-                    key={i}
-                    animate={i < comboProgress ? { scale: [1, 1.15, 1] } : {}}
-                    transition={{ delay: i * 0.1 }}
-                    className={`flex-1 h-2.5 rounded-full ${i < comboProgress ? 'bg-gradient-to-r from-yellow-500 to-orange-500' : 'bg-gray-700'}`}
-                  />
-                ))}
-              </div>
-              <p className="text-gray-400 text-xs">
-                {comboProgress >= COMBO_NEEDED
-                  ? '🎉 合击条件已达成！完成后额外 +80 Boss 伤害'
-                  : `还差 ${COMBO_NEEDED - comboProgress} 名队友完成任务即可触发合击`}
-              </p>
             </div>
 
             {/* Music player */}
