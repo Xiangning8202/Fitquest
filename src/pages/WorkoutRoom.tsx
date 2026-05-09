@@ -322,7 +322,7 @@ export function WorkoutRoom() {
       </AnimatePresence>
 
       {/* Fixed header */}
-      <header className="fixed top-0 left-0 right-0 z-30 bg-gray-950/85 backdrop-blur-md border-b border-gray-800 px-4 py-3 flex items-center gap-3">
+      <header className="fixed-in-frame fixed top-0 left-0 right-0 z-30 bg-gray-950/85 backdrop-blur-md border-b border-gray-800 px-4 py-3 flex items-center gap-3">
         <button
           onClick={() => { cancel(); navigate('/quest') }}
           className="text-gray-400 hover:text-white transition-colors text-sm px-1"
@@ -624,7 +624,7 @@ export function WorkoutRoom() {
 
       {/* Fixed bottom controls (only when started) */}
       {started && (
-        <div className="fixed bottom-0 left-0 right-0 z-30 bg-gray-950/90 backdrop-blur-md border-t border-gray-800 p-4 space-y-3">
+        <div className="fixed-in-frame fixed bottom-0 left-0 right-0 z-30 bg-gray-950/90 backdrop-blur-md border-t border-gray-800 p-4 space-y-3 nav-safe">
           <div className="flex gap-2 max-w-lg mx-auto">
             <button
               onClick={handlePauseResume}

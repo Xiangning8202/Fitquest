@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom
 import { useGameStore } from './store/useGameStore'
 import { Navbar } from './components/Navbar'
 import { AchievementModal } from './components/AchievementModal'
+import { InstallPrompt } from './components/InstallPrompt'
 import { Onboarding } from './pages/Onboarding'
 import { Dashboard } from './pages/Dashboard'
 import { Quest } from './pages/Quest'
@@ -14,6 +15,7 @@ function MainLayout() {
     <>
       <Navbar />
       <AchievementModal />
+      <InstallPrompt />
       <Outlet />
     </>
   )

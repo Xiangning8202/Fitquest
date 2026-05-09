@@ -44,7 +44,7 @@ export function Quest() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 pb-20 pt-16">
+    <div className="min-h-screen bg-gray-950 app-page">
       <div className="fixed inset-0 bg-gradient-to-br from-blue-950/20 via-gray-950 to-purple-950/30 pointer-events-none" />
 
       <div className="relative max-w-lg mx-auto px-4 py-5">

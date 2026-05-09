@@ -22,27 +22,29 @@ export function Navbar() {
 
   return (
     <>
-      {/* Top bar */}
-      <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-3 bg-gray-950/90 backdrop-blur-md border-b border-gray-800">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">🏋️</span>
-          <span className="font-bold text-white text-lg tracking-tight">FitQuest</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 bg-gray-800 rounded-full px-3 py-1">
-            <span className="text-orange-400 text-sm">🔥</span>
-            <span className="text-white text-sm font-semibold">{user.streak}</span>
+      {/* Top bar — header-safe pushes content below iPhone notch in standalone mode */}
+      <header className="fixed-in-frame fixed top-0 left-0 right-0 z-40 bg-gray-950/90 backdrop-blur-md border-b border-gray-800 header-safe">
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">🏋️</span>
+            <span className="font-bold text-white text-lg tracking-tight">FitQuest</span>
           </div>
-          <div
-            className={`w-8 h-8 rounded-full ${AVATAR_COLORS[user.avatarColor] ?? 'bg-purple-500'} flex items-center justify-center text-white font-bold text-sm`}
-          >
-            {user.name?.[0]?.toUpperCase() ?? '?'}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 bg-gray-800 rounded-full px-3 py-1">
+              <span className="text-orange-400 text-sm">🔥</span>
+              <span className="text-white text-sm font-semibold">{user.streak}</span>
+            </div>
+            <div
+              className={`w-8 h-8 rounded-full ${AVATAR_COLORS[user.avatarColor] ?? 'bg-purple-500'} flex items-center justify-center text-white font-bold text-sm`}
+            >
+              {user.name?.[0]?.toUpperCase() ?? '?'}
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Bottom nav */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-gray-950/90 backdrop-blur-md border-t border-gray-800">
+      {/* Bottom nav — nav-safe clears iPhone home indicator */}
+      <nav className="fixed-in-frame fixed bottom-0 left-0 right-0 z-40 bg-gray-950/90 backdrop-blur-md border-t border-gray-800 nav-safe">
         <div className="flex">
           {NAV_ITEMS.map(item => (
             <NavLink

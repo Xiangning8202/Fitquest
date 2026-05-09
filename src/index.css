@@ -2,41 +2,98 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  * {
-    -webkit-tap-highlight-color: transparent;
-  }
+/* ── Safe area CSS variables ─────────────────────────────────────────────── */
+:root {
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+}
 
+/* ── Base ────────────────────────────────────────────────────────────────── */
+@layer base {
   html {
-    font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    font-family: 'Inter', 'PingFang SC', 'SF Pro Display', 'Microsoft YaHei', sans-serif;
+    /* Prevent pull-to-refresh and overscroll glow on Android */
+    overscroll-behavior: none;
+    /* Smooth momentum scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
   }
 
   body {
     background-color: #030712;
     color: #f9fafb;
     overflow-x: hidden;
+    /* Prevent bounce scroll at the body level */
+    overscroll-behavior: none;
   }
 
-  ::-webkit-scrollbar {
-    width: 4px;
+  /* Prevent iOS Safari from zooming in on input focus */
+  input, select, textarea {
+    font-size: max(16px, 1em);
   }
 
-  ::-webkit-scrollbar-track {
-    background: transparent;
+  /* Remove tap highlight flash on mobile */
+  * {
+    -webkit-tap-highlight-color: transparent;
   }
 
-  ::-webkit-scrollbar-thumb {
-    background: #374151;
-    border-radius: 2px;
+  /* Better touch targets — no delays */
+  button, a, [role="button"] {
+    touch-action: manipulation;
   }
+
+  /* Thin scrollbar on desktop */
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #374151; border-radius: 2px; }
 }
 
+/* ── App layout utilities ────────────────────────────────────────────────── */
 @layer utilities {
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
+  /* Standard page wrapper: clears both fixed header (≈57px) and fixed nav (≈64px),
+     then adds device safe-area on top of each so notched iPhones work in standalone. */
+  .app-page {
+    padding-top: calc(57px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
   }
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+
+  /* Use on any fixed top bar to push content below the notch */
+  .header-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  /* Use on any fixed bottom bar to clear the home indicator */
+  .nav-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* No scrollbar */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+/* ── Desktop "app frame" ─────────────────────────────────────────────────── */
+/* On screens wider than a phone, center everything in a phone-width strip  */
+@media (min-width: 500px) {
+  body {
+    background-color: #000;
+  }
+
+  #root {
+    max-width: 430px;
+    margin-inline: auto;
+    min-height: 100dvh;
+    background-color: #030712;
+    position: relative;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.06),
+      0 32px 80px rgba(0, 0, 0, 0.8);
+  }
+
+  /* Keep fixed elements inside the 430px strip on desktop */
+  .fixed-in-frame {
+    left: max(0px, calc(50vw - 215px)) !important;
+    right: max(0px, calc(50vw - 215px)) !important;
   }
 }
