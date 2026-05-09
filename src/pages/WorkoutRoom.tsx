@@ -94,7 +94,7 @@ const COMBO_NEEDED = 3
 export function WorkoutRoom() {
   const { taskId } = useParams<{ taskId: string }>()
   const navigate = useNavigate()
-  const { speak, cancel } = useAICoach()
+  const { speak, cancel, toggleVoice, voiceOn } = useAICoach()
   const { start: startAudio, stop: stopAudio, setMode: setAudioMode } = useMusicPlayer()
 
   // ── Store selectors (hooks) ──
@@ -333,7 +333,20 @@ export function WorkoutRoom() {
           <p className="text-white font-bold text-sm truncate">{task.title}</p>
           <p className="text-gray-500 text-xs">{task.sportEmoji} {task.sport} · 预计 {task.duration} 分钟</p>
         </div>
-        <div className="text-xs text-gray-500 w-12 text-right">{phaseIdx + 1}/{phases.length}</div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleVoice}
+            title={voiceOn ? '关闭语音提示' : '开启语音提示'}
+            className={`w-8 h-8 rounded-full flex items-center justify-center text-base transition-all ${
+              voiceOn
+                ? 'bg-purple-600/30 text-purple-300 hover:bg-purple-600/50'
+                : 'bg-gray-800 text-gray-600 hover:bg-gray-700'
+            }`}
+          >
+            {voiceOn ? '🔊' : '🔇'}
+          </button>
+          <span className="text-xs text-gray-500">{phaseIdx + 1}/{phases.length}</span>
+        </div>
       </header>
 
       {/* Overall progress bar */}
