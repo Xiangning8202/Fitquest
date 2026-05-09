@@ -588,7 +588,7 @@ export function WorkoutRoom() {
 
       {/* Fixed bottom controls (only when started) */}
       {started && (
-        <div className="fixed left-0 right-0 bottom-0 z-30 sm:relative sm:bottom-auto sm:left-auto sm:right-auto flex-shrink-0 bg-gray-950/90 backdrop-blur-md border-t border-gray-800 p-4 space-y-3 nav-safe">
+        <div className="fixed left-0 right-0 bottom-0 z-30 sm:relative sm:bottom-auto sm:left-auto sm:right-auto flex-shrink-0 bg-gray-950/90 backdrop-blur-md border-t border-gray-800 p-4 pb-6 space-y-3 nav-safe">
           <div className="flex gap-2 max-w-lg mx-auto">
             <button
               onClick={handlePauseResume}
