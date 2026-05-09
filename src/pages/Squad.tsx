@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion'
 import { useGameStore } from '../store/useGameStore'
 
+const COMBO_NEEDED = 3
+
 const AVATAR_COLORS: Record<string, string> = {
   purple: 'bg-purple-500', blue: 'bg-blue-500', green: 'bg-green-500',
   orange: 'bg-orange-500', pink: 'bg-pink-500', teal: 'bg-teal-500',
@@ -19,10 +21,12 @@ export function Squad() {
   const user = useGameStore(s => s.user)
   const boss = useGameStore(s => s.boss)
   const teammates = useGameStore(s => s.teammates)
+  const squadCompleted = useGameStore(s => s.squadCompletedToday)
 
   const bossHpPct = Math.round((boss.currentHp / boss.maxHp) * 100)
   const totalContribution = teammates.reduce((s, t) => s + t.contribution, 0) + user.totalDamageDealt
   const maxContrib = Math.max(...teammates.map(t => t.contribution), user.totalDamageDealt, 1)
+  const comboProgress = Math.min(squadCompleted, COMBO_NEEDED)
 
   return (
     <div className="min-h-screen bg-gray-950 pb-20 pt-16">
@@ -201,6 +205,48 @@ export function Squad() {
               </motion.div>
             )}
           </div>
+        </motion.div>
+
+        {/* Combo Strike card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.33 }}
+          className={`bg-gray-900 border rounded-2xl p-4 ${comboProgress >= COMBO_NEEDED ? 'border-yellow-500/50 bg-yellow-500/5' : 'border-gray-800'}`}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-white font-bold">⚡ 今日宿舍合击</h3>
+            <span className={`text-lg font-black ${comboProgress >= COMBO_NEEDED ? 'text-yellow-400' : 'text-gray-400'}`}>
+              {comboProgress} / {COMBO_NEEDED}
+            </span>
+          </div>
+
+          <div className="flex gap-2 mb-3">
+            {Array.from({ length: COMBO_NEEDED }).map((_, i) => (
+              <motion.div
+                key={i}
+                initial={false}
+                animate={i < comboProgress ? { scale: [1, 1.15, 1] } : {}}
+                transition={{ delay: i * 0.1, duration: 0.3 }}
+                className={`flex-1 h-3 rounded-full ${
+                  i < comboProgress
+                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500'
+                    : 'bg-gray-700'
+                }`}
+              />
+            ))}
+          </div>
+
+          {comboProgress >= COMBO_NEEDED ? (
+            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-3 text-center">
+              <p className="text-yellow-400 font-bold text-sm">🎉 合击条件已达成！</p>
+              <p className="text-orange-300 text-xs mt-0.5">下次完成任务将额外造成 80 点 Boss 伤害</p>
+            </div>
+          ) : (
+            <p className="text-gray-400 text-sm">
+              还差 <span className="text-white font-bold">{COMBO_NEEDED - comboProgress}</span> 名队友完成任务即可触发合击，额外造成 80 点 Boss 伤害
+            </p>
+          )}
         </motion.div>
 
         {/* Rules card */}

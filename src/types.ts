@@ -74,3 +74,17 @@ export interface LeaderboardEntry {
   weeklyXp: number
   isCurrentUser?: boolean
 }
+
+export interface Settlement {
+  taskTitle: string
+  taskEmoji: string
+  xpGained: number
+  damageDealt: number
+  comboDamage: number
+  comboTriggered: boolean
+  newStreak: number
+  newLevel: number
+  leveledUp: boolean
+  unlockedBadge: Badge | null
+  encouragement: string
+}

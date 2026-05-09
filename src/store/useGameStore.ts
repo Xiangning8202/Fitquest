@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { UserProfile, Task, Badge, Boss, Teammate, UserPreferences } from '../types'
+import type { UserProfile, Task, Badge, Boss, Teammate, UserPreferences, Settlement } from '../types'
 import { INITIAL_BADGES } from '../data/badgeDefinitions'
 import { INITIAL_BOSS, INITIAL_TEAMMATES, BOSS_SEQUENCE } from '../data/squadData'
 
@@ -31,6 +31,15 @@ function getLevelTitle(level: number) {
   return '传奇战士'
 }
 
+function computeEncouragement(totalDone: number, streak: number, combo: boolean, leveledUp: boolean, newLevel: number): string {
+  if (totalDone === 1) return '欢迎来到 FitQuest！第一步永远是最重要的！'
+  if (combo) return '宿舍合击触发！你是小队今日的关键力量！'
+  if (leveledUp) return `恭喜升到 Lv.${newLevel}！你变得更强大了！`
+  if (streak >= 7) return `连续打卡 ${streak} 天，你就是大家的榜样！`
+  if (streak >= 3) return `连续打卡 ${streak} 天，习惯正在悄悄养成！`
+  return '太棒了！每一次坚持都在重塑更好的你！'
+}
+
 const INITIAL_USER: UserProfile = {
   name: '',
   avatarColor: 'purple',
@@ -48,25 +57,6 @@ const INITIAL_USER: UserProfile = {
   isOnboarded: false,
 }
 
-interface GameState {
-  user: UserProfile
-  todayTasks: Task[]
-  tasksGeneratedDate: string
-  badges: Badge[]
-  boss: Boss
-  teammates: Teammate[]
-  recentUnlockedBadge: Badge | null
-
-  getLevelTitle: () => string
-  getXpForNextLevel: () => number
-  completeOnboarding: (name: string, avatarColor: string, prefs: UserPreferences) => void
-  setTodayTasks: (tasks: Task[]) => void
-  completeTask: (taskId: string) => void
-  clearRecentBadge: () => void
-  checkStreak: () => void
-  resetProgress: () => void
-}
-
 function checkBadges(
   user: UserProfile,
   badges: Badge[],
@@ -77,7 +67,6 @@ function checkBadges(
 
   const updated = badges.map(b => {
     if (b.unlocked) return b
-
     let shouldUnlock = false
     switch (b.id) {
       case 'first_step': shouldUnlock = user.totalTasksDone >= 1; break
@@ -93,7 +82,6 @@ function checkBadges(
       case 'perfect_day': shouldUnlock = user.allTasksDaysCount >= 1; break
       case 'damage_300': shouldUnlock = user.totalDamageDealt >= 300; break
     }
-
     if (shouldUnlock) {
       const unlocked = { ...b, unlocked: true, unlockedAt: today }
       if (!newBadge) newBadge = unlocked
@@ -101,8 +89,31 @@ function checkBadges(
     }
     return b
   })
-
   return { badges: updated, newBadge }
+}
+
+interface GameState {
+  user: UserProfile
+  todayTasks: Task[]
+  tasksGeneratedDate: string
+  badges: Badge[]
+  boss: Boss
+  teammates: Teammate[]
+  recentUnlockedBadge: Badge | null
+  lastSettlement: Settlement | null
+  squadCompletedToday: number
+  squadCompletedDate: string
+
+  getLevelTitle: () => string
+  getXpForNextLevel: () => number
+  completeOnboarding: (name: string, avatarColor: string, prefs: UserPreferences) => void
+  setTodayTasks: (tasks: Task[]) => void
+  completeTask: (taskId: string) => void
+  clearRecentBadge: () => void
+  clearSettlement: () => void
+  incrementSquadCompleted: () => void
+  checkStreak: () => void
+  resetProgress: () => void
 }
 
 export const useGameStore = create<GameState>()(
@@ -115,14 +126,15 @@ export const useGameStore = create<GameState>()(
       boss: INITIAL_BOSS,
       teammates: INITIAL_TEAMMATES,
       recentUnlockedBadge: null,
+      lastSettlement: null,
+      squadCompletedToday: 1,
+      squadCompletedDate: todayStr(),
 
       getLevelTitle: () => getLevelTitle(get().user.level),
       getXpForNextLevel: () => xpForNextLevel(get().user.level),
 
       completeOnboarding: (name, avatarColor, prefs) => {
-        set(s => ({
-          user: { ...s.user, name, avatarColor, preferences: prefs, isOnboarded: true },
-        }))
+        set(s => ({ user: { ...s.user, name, avatarColor, preferences: prefs, isOnboarded: true } }))
       },
 
       setTodayTasks: tasks => {
@@ -135,10 +147,11 @@ export const useGameStore = create<GameState>()(
         if (!task || task.completed) return
 
         const today = todayStr()
-        const { user, boss, teammates } = state
+        const { user, boss, teammates, squadCompletedToday } = state
 
         // XP + level
         const { xp: newXp, level: newLevel } = addXP(user.xp, user.level, task.xpReward)
+        const leveledUp = newLevel > user.level
 
         // Streak
         let newStreak = user.streak
@@ -149,21 +162,28 @@ export const useGameStore = create<GameState>()(
           newStreak = user.lastActiveDate === yStr ? user.streak + 1 : 1
         }
 
-        // Sports count
+        // Sports
         const sportsCount = { ...user.sportsCount }
         sportsCount[task.sport] = (sportsCount[task.sport] ?? 0) + 1
         const uniqueSportsCount = Object.keys(sportsCount).length
 
-        // Damage + teammate simulation
-        const teammateDamage = teammates.reduce((sum, _) => sum + Math.floor(Math.random() * 12 + 5), 0)
-        const totalDamage = task.damage + teammateDamage
-        let newBossHp = Math.max(0, boss.currentHp - totalDamage)
-        const bossDefeatedNow = newBossHp === 0 && !boss.defeated
+        // Damage
+        const teammateDamage = teammates.reduce((sum) => sum + Math.floor(Math.random() * 12 + 5), 0)
+        const bossDefeatedNow = Math.max(0, boss.currentHp - task.damage - teammateDamage) === 0
 
-        // Updated teammates contribution
-        const newTeammates = teammates.map((tm, i) => ({
+        // Combo strike: need 3 total, squadCompletedToday starts at 1 (Leo done)
+        const newSquadCount = squadCompletedToday + 1
+        const comboTriggered = newSquadCount >= 3
+        const comboDamage = comboTriggered ? 80 : 0
+        const totalDamage = task.damage + teammateDamage + comboDamage
+
+        const newBossHp = Math.max(0, boss.currentHp - totalDamage)
+        const actualBossDefeated = newBossHp === 0
+
+        // Teammates contribution update
+        const newTeammates = teammates.map(tm => ({
           ...tm,
-          contribution: tm.contribution + Math.floor(Math.random() * 12 + 5) * (i === 0 ? 1 : 1),
+          contribution: tm.contribution + Math.floor(Math.random() * 12 + 5),
         }))
 
         const updatedTasks = state.todayTasks.map(t =>
@@ -178,8 +198,8 @@ export const useGameStore = create<GameState>()(
           streak: newStreak,
           lastActiveDate: today,
           totalTasksDone: user.totalTasksDone + 1,
-          totalDamageDealt: user.totalDamageDealt + task.damage,
-          bossesDefeated: user.bossesDefeated + (bossDefeatedNow ? 1 : 0),
+          totalDamageDealt: user.totalDamageDealt + task.damage + comboDamage,
+          bossesDefeated: user.bossesDefeated + (actualBossDefeated ? 1 : 0),
           sportsCount,
           uniqueSportsCount,
           allTasksDaysCount: user.allTasksDaysCount + (allDone ? 1 : 0),
@@ -187,14 +207,36 @@ export const useGameStore = create<GameState>()(
 
         // Next boss
         let updatedBoss: Boss
-        if (bossDefeatedNow) {
+        if (actualBossDefeated) {
           const nextBossData = BOSS_SEQUENCE[boss.id % BOSS_SEQUENCE.length]
           updatedBoss = { ...nextBossData, currentHp: nextBossData.maxHp, defeated: false }
         } else {
           updatedBoss = { ...boss, currentHp: newBossHp }
         }
 
-        const { badges: updatedBadges, newBadge } = checkBadges(updatedUser, state.badges, bossDefeatedNow)
+        const { badges: updatedBadges, newBadge } = checkBadges(updatedUser, state.badges, actualBossDefeated)
+
+        const encouragement = computeEncouragement(
+          updatedUser.totalTasksDone,
+          newStreak,
+          comboTriggered,
+          leveledUp,
+          newLevel
+        )
+
+        const settlement: Settlement = {
+          taskTitle: task.title,
+          taskEmoji: task.sportEmoji,
+          xpGained: task.xpReward,
+          damageDealt: task.damage + teammateDamage,
+          comboDamage,
+          comboTriggered,
+          newStreak,
+          newLevel,
+          leveledUp,
+          unlockedBadge: newBadge,
+          encouragement,
+        }
 
         set({
           user: updatedUser,
@@ -203,15 +245,33 @@ export const useGameStore = create<GameState>()(
           teammates: newTeammates,
           badges: updatedBadges,
           recentUnlockedBadge: newBadge,
+          lastSettlement: settlement,
+          squadCompletedToday: newSquadCount,
+          squadCompletedDate: today,
         })
       },
 
       clearRecentBadge: () => set({ recentUnlockedBadge: null }),
+      clearSettlement: () => set({ lastSettlement: null }),
+
+      incrementSquadCompleted: () => {
+        const today = todayStr()
+        set(s => ({
+          squadCompletedToday: s.squadCompletedDate === today ? s.squadCompletedToday + 1 : 2,
+          squadCompletedDate: today,
+        }))
+      },
 
       checkStreak: () => {
-        const { user } = get()
-        if (!user.isOnboarded || !user.lastActiveDate) return
+        const { user, squadCompletedDate } = get()
         const today = todayStr()
+
+        // Reset squad count if new day (keep 1 for Leo mock)
+        if (squadCompletedDate !== today) {
+          set({ squadCompletedToday: 1, squadCompletedDate: today })
+        }
+
+        if (!user.isOnboarded || !user.lastActiveDate) return
         if (user.lastActiveDate === today) return
         const yesterday = new Date()
         yesterday.setDate(yesterday.getDate() - 1)
@@ -229,13 +289,13 @@ export const useGameStore = create<GameState>()(
           boss: INITIAL_BOSS,
           teammates: INITIAL_TEAMMATES,
           recentUnlockedBadge: null,
+          lastSettlement: null,
+          squadCompletedToday: 1,
+          squadCompletedDate: todayStr(),
         })
       },
     }),
-    {
-      name: 'fitquest-storage',
-      version: 1,
-    }
+    { name: 'fitquest-storage', version: 2 }
   )
 )
 
