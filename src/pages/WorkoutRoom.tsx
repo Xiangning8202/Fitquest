@@ -454,21 +454,19 @@ export function WorkoutRoom() {
                   </div>
                 ))}
               </div>
-              <div className="space-y-1.5 min-h-[60px]">
-                <AnimatePresence initial={false}>
-                  {feedItems.map(item => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0 }}
-                      className="flex items-center gap-2 text-xs"
-                    >
-                      <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${AVATAR_COLORS[item.color] ?? 'bg-gray-500'}`} />
-                      <span className="text-gray-400">{item.text}</span>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+              <div className="space-y-2 min-h-[64px]">
+                {feedItems.map(item => (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: 'easeOut' }}
+                    className="flex items-center gap-2 text-xs"
+                  >
+                    <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${AVATAR_COLORS[item.color] ?? 'bg-gray-500'}`} />
+                    <span className="text-gray-300">{item.text}</span>
+                  </motion.div>
+                ))}
               </div>
             </div>
 
