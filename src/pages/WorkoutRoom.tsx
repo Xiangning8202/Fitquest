@@ -269,8 +269,8 @@ export function WorkoutRoom() {
       <motion.div
         key={phaseIdx}
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className={`fixed inset-0 bg-gradient-to-br ${currentPhase.gradient} opacity-10 pointer-events-none`}
+        animate={{ opacity: 0.1 }}
+        className={`fixed inset-0 z-[-1] bg-gradient-to-br ${currentPhase.gradient} pointer-events-none`}
       />
 
       {/* AI Coach toast */}
