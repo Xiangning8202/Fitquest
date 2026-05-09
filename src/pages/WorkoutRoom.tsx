@@ -144,7 +144,13 @@ export function WorkoutRoom() {
         setTimeLeft(phases[next].duration)
         halfFired.current = false
         lastMinFired.current = false
-        const line = COACH_LINES.phaseChange(phases[prev].name, phases[next].name)
+        // 根据目标阶段选不同的开场语
+        const phaseId = phases[next].id
+        const line = phaseId === 'main'
+          ? COACH_LINES.mainStart()
+          : phaseId === 'cooldown'
+          ? COACH_LINES.cooldownStart()
+          : COACH_LINES.phaseChange(phases[prev].name, phases[next].name)
         showToast(line)
         speak(line)
         return next
@@ -164,8 +170,24 @@ export function WorkoutRoom() {
     setSettled(true)
   }, [task, completeTask, speak, cancel, showToast])
 
+  const handlePauseResume = useCallback(() => {
+    setRunning(r => {
+      const next = !r
+      if (!next) {
+        const line = COACH_LINES.pause()
+        showToast(line)
+        speak(line)
+      } else {
+        const line = COACH_LINES.resume()
+        showToast(line)
+        speak(line)
+      }
+      return next
+    })
+  }, [speak, showToast])
+
   const handleTired = useCallback(() => {
-    const line = COACH_LINES.tired
+    const line = COACH_LINES.tired()
     showToast(line)
     speak(line)
   }, [speak, showToast])
@@ -177,7 +199,7 @@ export function WorkoutRoom() {
     setTimeLeft(phases[0].duration)
     halfFired.current = false
     lastMinFired.current = false
-    const line = COACH_LINES.start(phases[0].name)
+    const line = COACH_LINES.warmupStart()
     showToast(line)
     speak(line)
   }, [phases, speak, showToast])
@@ -193,13 +215,19 @@ export function WorkoutRoom() {
         const next = t - 1
         if (phaseIdx === 1 && !halfFired.current && next === halfPoint) {
           halfFired.current = true
-          showToast(COACH_LINES.halfTime)
-          speak(COACH_LINES.halfTime)
+          const line = COACH_LINES.halfTime()
+          showToast(line)
+          speak(line)
         }
-        if (!lastMinFired.current && next === 60) {
+        if (!lastMinFired.current && next === 60 && phaseDuration > 90) {
           lastMinFired.current = true
-          showToast('还剩最后 1 分钟，冲刺！')
-          speak(COACH_LINES.lastMinute)
+          const line = COACH_LINES.lastMinute()
+          showToast(line)
+          speak(line)
+        }
+        if (next === 10 && next > 0) {
+          const line = COACH_LINES.tenSeconds()
+          speak(line)
         }
         return next <= 0 ? 0 : next
       })
@@ -586,7 +614,7 @@ export function WorkoutRoom() {
         <div className="fixed bottom-0 left-0 right-0 z-30 bg-gray-950/90 backdrop-blur-md border-t border-gray-800 p-4 space-y-3">
           <div className="flex gap-2 max-w-lg mx-auto">
             <button
-              onClick={() => setRunning(r => !r)}
+              onClick={handlePauseResume}
               className={`flex-1 py-2.5 rounded-xl border font-semibold text-sm transition-all ${
                 running
                   ? 'border-gray-600 text-gray-300 hover:bg-gray-800'
