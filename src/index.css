@@ -72,34 +72,28 @@
       #06060f;
   }
 
-  #root {
-    /*
-     * Scale factor: 0.82
-     * All CSS values below are the TARGET visual size ÷ 0.82,
-     * so after zoom:0.82 is applied the rendered result matches
-     * the intended phone dimensions exactly.
-     *
-     * Target visual: 393 × 852 px (iPhone 15 Pro)
-     * CSS values:    479 × 1039 px  →  × 0.82  →  393 × 852 px
-     *
-     * This shrinks every component, font, and spacing to
-     * match real iOS app proportions as seen on a desktop monitor.
-     */
-    zoom: 0.82;
+  /* Shrink all rem-based Tailwind sizes to ~81% — fonts, padding, radius */
+  html { font-size: 13px; }
 
-    width: 479px;                                          /* 393 / 0.82 */
-    height: min(1039px, calc((100dvh - 32px) / 0.82));    /* 852 / 0.82 */
+  #root {
+    /* iPhone 15 Pro dimensions */
+    width: 393px;
+    height: min(852px, calc(100dvh - 32px));
     flex-shrink: 0;
-    border-radius: 64px;                                   /* 52  / 0.82 */
+    border-radius: 52px;
     overflow: hidden;
 
-    /* Phone bezel — values ÷ 0.82 so visual result matches targets */
+    /* Phone bezel */
     box-shadow:
-      inset 0 0 0 2px   rgba(255, 255, 255, 0.13), /* ~1.5 px glass shine */
-      0 0 0 12px         #181818,                   /* ~10 px bezel body   */
-      0 0 0 14px         rgba(255, 255, 255, 0.07), /* ~11 px outer rim    */
-      0 73px 183px       rgba(0, 0, 0, 0.95),       /* drop shadow         */
-      0 0 122px          rgba(139, 92, 246, 0.12);  /* purple ambient glow */
+      inset 0 0 0 1.5px rgba(255, 255, 255, 0.13),
+      0 0 0 10px #181818,
+      0 0 0 11px rgba(255, 255, 255, 0.07),
+      0 60px 150px rgba(0, 0, 0, 0.95),
+      0 0 100px rgba(139, 92, 246, 0.12);
+
+    /* CRITICAL: makes position:fixed children relative to #root,
+       so they're clipped by overflow:hidden inside the phone frame */
+    transform: translateZ(0);
   }
 
   /* On desktop the App Shell handles top/bottom chrome — zero out app-page */
