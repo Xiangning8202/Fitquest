@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useParams, useNavigate, Navigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '../store/useGameStore'
-import { useAICoach, COACH_LINES } from '../hooks/useAICoach'
+import { COACH_LINES } from '../hooks/useAICoach'
+import { useChime } from '../hooks/useChime'
 import { useMusicPlayer } from '../hooks/useMusicPlayer'
 import { SettlementModal } from '../components/SettlementModal'
 import type { Task } from '../types'
@@ -94,7 +95,7 @@ const COMBO_NEEDED = 3
 export function WorkoutRoom() {
   const { taskId } = useParams<{ taskId: string }>()
   const navigate = useNavigate()
-  const { speak, cancel, toggleVoice, voiceOn } = useAICoach()
+  const { play: chime } = useChime()
   const { start: startAudio, stop: stopAudio, setMode: setAudioMode } = useMusicPlayer()
 
   // ── Store selectors (hooks) ──
@@ -144,7 +145,6 @@ export function WorkoutRoom() {
         setTimeLeft(phases[next].duration)
         halfFired.current = false
         lastMinFired.current = false
-        // 根据目标阶段选不同的开场语
         const phaseId = phases[next].id
         const line = phaseId === 'main'
           ? COACH_LINES.mainStart()
@@ -152,45 +152,41 @@ export function WorkoutRoom() {
           ? COACH_LINES.cooldownStart()
           : COACH_LINES.phaseChange(phases[prev].name, phases[next].name)
         showToast(line)
-        speak(line)
+        chime(phaseId === 'cooldown' ? 'phaseCooldown' : 'phaseMain')
         return next
       }
       return prev
     })
-  }, [phases, speak, showToast])
+  }, [phases, chime, showToast])
 
   const handleEndSettle = useCallback(() => {
     if (!task) return
     setRunning(false)
-    cancel()
     const line = COACH_LINES.done(task.xpReward, task.damage)
     showToast(line)
-    speak(line)
+    chime('done')
     completeTask(task.id)
     setSettled(true)
-  }, [task, completeTask, speak, cancel, showToast])
+  }, [task, completeTask, chime, showToast])
 
   const handlePauseResume = useCallback(() => {
     setRunning(r => {
       const next = !r
       if (!next) {
-        const line = COACH_LINES.pause()
-        showToast(line)
-        speak(line)
+        showToast(COACH_LINES.pause())
+        chime('pause')
       } else {
-        const line = COACH_LINES.resume()
-        showToast(line)
-        speak(line)
+        showToast(COACH_LINES.resume())
+        chime('resume')
       }
       return next
     })
-  }, [speak, showToast])
+  }, [chime, showToast])
 
   const handleTired = useCallback(() => {
-    const line = COACH_LINES.tired()
-    showToast(line)
-    speak(line)
-  }, [speak, showToast])
+    showToast(COACH_LINES.tired())
+    chime('tired')
+  }, [chime, showToast])
 
   const handleStart = useCallback(() => {
     if (phases.length === 0) return
@@ -199,10 +195,9 @@ export function WorkoutRoom() {
     setTimeLeft(phases[0].duration)
     halfFired.current = false
     lastMinFired.current = false
-    const line = COACH_LINES.warmupStart()
-    showToast(line)
-    speak(line)
-  }, [phases, speak, showToast])
+    showToast(COACH_LINES.warmupStart())
+    chime('start')
+  }, [phases, chime, showToast])
 
   // ── Effects (ALL useEffect must be before any conditional return) ──
 
@@ -215,25 +210,22 @@ export function WorkoutRoom() {
         const next = t - 1
         if (phaseIdx === 1 && !halfFired.current && next === halfPoint) {
           halfFired.current = true
-          const line = COACH_LINES.halfTime()
-          showToast(line)
-          speak(line)
+          showToast(COACH_LINES.halfTime())
+          chime('half')
         }
         if (!lastMinFired.current && next === 60 && phaseDuration > 90) {
           lastMinFired.current = true
-          const line = COACH_LINES.lastMinute()
-          showToast(line)
-          speak(line)
+          showToast(COACH_LINES.lastMinute())
+          chime('lastMin')
         }
         if (next === 10 && next > 0) {
-          const line = COACH_LINES.tenSeconds()
-          speak(line)
+          chime('tenSec')
         }
         return next <= 0 ? 0 : next
       })
     }, 1000)
     return () => clearInterval(interval)
-  }, [running, started, phaseIdx, phaseDuration, speak, showToast])
+  }, [running, started, phaseIdx, phaseDuration, chime, showToast])
 
   // Auto-advance phase when timer hits 0
   useEffect(() => {
@@ -324,7 +316,7 @@ export function WorkoutRoom() {
       {/* Fixed header */}
       <header className="fixed left-0 right-0 top-0 z-30 sm:relative sm:top-auto sm:left-auto sm:right-auto flex-shrink-0 bg-gray-950/85 backdrop-blur-md border-b border-gray-800 px-4 py-3 flex items-center gap-3">
         <button
-          onClick={() => { cancel(); navigate('/quest') }}
+          onClick={() => navigate('/quest')}
           className="text-gray-400 hover:text-white transition-colors text-sm px-1"
         >
           ← 返回
@@ -333,20 +325,7 @@ export function WorkoutRoom() {
           <p className="text-white font-bold text-sm truncate">{task.title}</p>
           <p className="text-gray-500 text-xs">{task.sportEmoji} {task.sport} · 预计 {task.duration} 分钟</p>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={toggleVoice}
-            title={voiceOn ? '关闭语音提示' : '开启语音提示'}
-            className={`w-8 h-8 rounded-full flex items-center justify-center text-base transition-all ${
-              voiceOn
-                ? 'bg-purple-600/30 text-purple-300 hover:bg-purple-600/50'
-                : 'bg-gray-800 text-gray-600 hover:bg-gray-700'
-            }`}
-          >
-            {voiceOn ? '🔊' : '🔇'}
-          </button>
-          <span className="text-xs text-gray-500">{phaseIdx + 1}/{phases.length}</span>
-        </div>
+        <span className="text-xs text-gray-500 w-8 text-right">{phaseIdx + 1}/{phases.length}</span>
       </header>
 
       {/* Overall progress bar */}
