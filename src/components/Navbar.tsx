@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { useGameStore } from '../store/useGameStore'
+import { AvatarIcon } from './AvatarIcon'
 
 const NAV_ITEMS = [
   { to: '/', icon: '🏠', label: '主页' },
@@ -7,11 +8,6 @@ const NAV_ITEMS = [
   { to: '/squad', icon: '⚔️', label: '战队' },
   { to: '/profile', icon: '👤', label: '我的' },
 ]
-
-const AVATAR_COLORS: Record<string, string> = {
-  purple: 'bg-purple-500', blue: 'bg-blue-500', green: 'bg-green-500',
-  orange: 'bg-orange-500', pink: 'bg-pink-500', teal: 'bg-teal-500',
-}
 
 /** Top bar — fixed on mobile, relative (in flex shell) on desktop */
 export function NavHeader() {
@@ -33,9 +29,7 @@ export function NavHeader() {
             <span className="text-orange-400 text-sm">🔥</span>
             <span className="text-white text-sm font-semibold">{user.streak}</span>
           </div>
-          <div className={`w-8 h-8 rounded-full ${AVATAR_COLORS[user.avatarColor] ?? 'bg-purple-500'} flex items-center justify-center text-white font-bold text-sm`}>
-            {user.name?.[0]?.toUpperCase() ?? '?'}
-          </div>
+          <AvatarIcon color={user.avatarColor} className="w-8 h-8" />
         </div>
       </div>
     </header>

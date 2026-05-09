@@ -1,12 +1,9 @@
 import { motion } from 'framer-motion'
 import { useGameStore } from '../store/useGameStore'
+import { AvatarIcon, AVATAR_BG } from '../components/AvatarIcon'
 
 const COMBO_NEEDED = 3
 
-const AVATAR_COLORS: Record<string, string> = {
-  purple: 'bg-purple-500', blue: 'bg-blue-500', green: 'bg-green-500',
-  orange: 'bg-orange-500', pink: 'bg-pink-500', teal: 'bg-teal-500',
-}
 const STATUS_COLORS = { active: 'bg-green-400', resting: 'bg-yellow-400', offline: 'bg-gray-600' }
 const STATUS_LABELS = { active: '今日已训练', resting: '休息中', offline: '未上线' }
 
@@ -103,9 +100,7 @@ export function Squad() {
           <div className="space-y-3">
             {/* Current user */}
             <div className="flex items-center gap-3">
-              <div className={`w-9 h-9 rounded-full ${AVATAR_COLORS[user.avatarColor] ?? 'bg-purple-500'} flex items-center justify-center text-white text-sm font-bold flex-shrink-0`}>
-                {user.name?.[0] ?? '?'}
-              </div>
+              <AvatarIcon color={user.avatarColor} className="w-9 h-9" />
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-white text-sm font-semibold">{user.name} <span className="text-purple-400 text-xs">(我)</span></span>
@@ -125,9 +120,7 @@ export function Squad() {
             {teammates.map(tm => (
               <div key={tm.id} className="flex items-center gap-3">
                 <div className="relative flex-shrink-0">
-                  <div className={`w-9 h-9 rounded-full ${AVATAR_COLORS[tm.avatarColor] ?? 'bg-gray-600'} flex items-center justify-center text-white text-sm font-bold`}>
-                    {tm.name[0]}
-                  </div>
+                  <AvatarIcon color={tm.avatarColor} className="w-9 h-9" />
                   <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-gray-900 ${STATUS_COLORS[tm.status]}`} />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -140,7 +133,7 @@ export function Squad() {
                   </div>
                   <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
                     <motion.div
-                      className={`h-full rounded-full ${AVATAR_COLORS[tm.avatarColor]?.replace('bg-', 'bg-').replace('500', '400') ?? 'bg-blue-400'}`}
+                      className={`h-full rounded-full ${(AVATAR_BG[tm.avatarColor] ?? 'bg-blue-500').replace('500', '400')}`}
                       animate={{ width: `${Math.min((tm.contribution / maxContrib) * 100, 100)}%` }}
                       transition={{ duration: 1, ease: 'easeOut' }}
                     />

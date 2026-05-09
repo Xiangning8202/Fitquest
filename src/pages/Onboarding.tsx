@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '../store/useGameStore'
+import { AvatarIcon } from '../components/AvatarIcon'
 
 const SPORTS = ['跑步', '健身', '瑜伽', '游泳', '篮球', '骑行', '跳绳', 'HIIT']
 const SPORT_EMOJIS: Record<string, string> = {
@@ -142,12 +143,8 @@ export function Onboarding() {
                       onClick={() => setAvatarColor(c.id)}
                       className="flex flex-col items-center gap-1"
                     >
-                      <div
-                        className={`w-12 h-12 rounded-full ${c.bg} flex items-center justify-center text-white font-black text-lg transition-all ${
-                          avatarColor === c.id ? 'ring-2 ring-white ring-offset-2 ring-offset-gray-950 scale-110' : 'opacity-70 hover:opacity-100'
-                        }`}
-                      >
-                        {name?.[0]?.toUpperCase() ?? '?'}
+                      <div className={`transition-all ${avatarColor === c.id ? 'ring-2 ring-white ring-offset-2 ring-offset-gray-950 scale-110 rounded-full' : 'opacity-70 hover:opacity-100'}`}>
+                        <AvatarIcon color={c.id} className="w-12 h-12" animate={avatarColor === c.id} />
                       </div>
                       <span className="text-gray-500 text-xs">{c.label}</span>
                     </button>

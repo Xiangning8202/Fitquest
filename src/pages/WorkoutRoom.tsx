@@ -6,6 +6,7 @@ import { useAICoach, COACH_LINES } from '../hooks/useAICoach'
 import { useChime } from '../hooks/useChime'
 import { useMusicPlayer } from '../hooks/useMusicPlayer'
 import { SettlementModal } from '../components/SettlementModal'
+import { AvatarIcon, AVATAR_BG } from '../components/AvatarIcon'
 import type { Task } from '../types'
 
 // ─── Phase definitions ────────────────────────────────────────────────────────
@@ -493,8 +494,8 @@ export function WorkoutRoom() {
                   { name: '阿诚', color: 'green', status: '轻量版' },
                 ].map(m => (
                   <div key={m.name} className="flex flex-col items-center gap-1 flex-1">
-                    <div className={`relative w-10 h-10 rounded-full ${AVATAR_COLORS[m.color]} flex items-center justify-center text-white text-sm font-bold ${m.isMe ? 'ring-2 ring-purple-400 ring-offset-2 ring-offset-gray-900' : ''}`}>
-                      {m.name[0]}
+                    <div className={`relative ${m.isMe ? 'ring-2 ring-purple-400 ring-offset-2 ring-offset-gray-900 rounded-full' : ''}`}>
+                      <AvatarIcon color={m.color} className="w-10 h-10" />
                       <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-green-400 border-2 border-gray-900" />
                     </div>
                     <span className="text-gray-400 text-xs truncate w-full text-center">{m.isMe ? '你' : m.name}</span>
@@ -511,7 +512,7 @@ export function WorkoutRoom() {
                     transition={{ duration: 0.35, ease: 'easeOut' }}
                     className="flex items-center gap-2 text-xs"
                   >
-                    <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${AVATAR_COLORS[item.color] ?? 'bg-gray-500'}`} />
+                    <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${AVATAR_BG[item.color] ?? 'bg-gray-500'}`} />
                     <span className="text-gray-300">{item.text}</span>
                   </motion.div>
                 ))}

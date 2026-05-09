@@ -2,12 +2,9 @@ import { motion } from 'framer-motion'
 import { useGameStore, getLevelTitle, xpForNextLevel } from '../store/useGameStore'
 import { XPBar } from '../components/XPBar'
 import { BadgeCard } from '../components/BadgeCard'
+import { AvatarIcon } from '../components/AvatarIcon'
 import { LEADERBOARD_MOCK } from '../data/squadData'
 
-const AVATAR_COLORS: Record<string, string> = {
-  purple: 'bg-purple-500', blue: 'bg-blue-500', green: 'bg-green-500',
-  orange: 'bg-orange-500', pink: 'bg-pink-500', teal: 'bg-teal-500',
-}
 const MEDALS = ['🥇', '🥈', '🥉']
 
 export function Profile() {
@@ -51,9 +48,7 @@ export function Profile() {
           className="bg-gray-900 border border-gray-800 rounded-2xl p-5 bg-gradient-to-br from-purple-900/30 to-gray-900"
         >
           <div className="flex items-center gap-4 mb-4">
-            <div className={`w-16 h-16 rounded-2xl ${AVATAR_COLORS[user.avatarColor] ?? 'bg-purple-500'} flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-purple-500/20`}>
-              {user.name?.[0]?.toUpperCase() ?? '?'}
-            </div>
+            <AvatarIcon color={user.avatarColor} className="w-16 h-16 rounded-2xl shadow-lg" />
             <div className="flex-1">
               <h2 className="text-white font-black text-xl">{user.name}</h2>
               <div className="flex items-center gap-2 mt-0.5">
@@ -146,9 +141,7 @@ export function Profile() {
                   <span className="text-xl w-7 text-center flex-shrink-0">
                     {i < 3 ? MEDALS[i] : <span className="text-gray-500 text-sm font-bold">#{i + 1}</span>}
                   </span>
-                  <div className={`w-9 h-9 rounded-full ${AVATAR_COLORS[entry.avatarColor] ?? 'bg-gray-600'} flex items-center justify-center text-white text-sm font-bold flex-shrink-0`}>
-                    {entry.name[0]}
-                  </div>
+                  <AvatarIcon color={entry.avatarColor} className="w-9 h-9" animate={false} />
                   <div className="flex-1 min-w-0">
                     <p className={`font-semibold text-sm ${isMe ? 'text-purple-300' : 'text-white'}`}>
                       {entry.name}{isMe && ' (我)'}

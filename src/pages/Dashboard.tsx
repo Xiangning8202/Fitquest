@@ -4,12 +4,8 @@ import { motion } from 'framer-motion'
 import { useGameStore, getLevelTitle, xpForNextLevel } from '../store/useGameStore'
 import { XPBar } from '../components/XPBar'
 import { QuestCard } from '../components/QuestCard'
+import { AvatarIcon } from '../components/AvatarIcon'
 import { LEADERBOARD_MOCK } from '../data/squadData'
-
-const AVATAR_COLORS: Record<string, string> = {
-  purple: 'bg-purple-500', blue: 'bg-blue-500', green: 'bg-green-500',
-  orange: 'bg-orange-500', pink: 'bg-pink-500', teal: 'bg-teal-500',
-}
 
 function card(className = '') {
   return `bg-gray-900 border border-gray-800 rounded-2xl ${className}`
@@ -50,9 +46,7 @@ export function Dashboard() {
           className={`${card('p-5')} bg-gradient-to-br from-purple-900/40 to-gray-900 border-purple-800/30`}
         >
           <div className="flex items-center gap-4 mb-4">
-            <div className={`w-14 h-14 rounded-2xl ${AVATAR_COLORS[user.avatarColor] ?? 'bg-purple-500'} flex items-center justify-center text-white text-2xl font-black shadow-lg`}>
-              {user.name?.[0]?.toUpperCase() ?? '?'}
-            </div>
+            <AvatarIcon color={user.avatarColor} className="w-14 h-14 rounded-2xl shadow-lg" />
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <h2 className="text-white font-bold text-lg">{user.name}</h2>
@@ -182,9 +176,7 @@ export function Dashboard() {
                   className={`flex items-center gap-3 p-2 rounded-xl ${isMe ? 'bg-purple-500/15 border border-purple-500/30' : ''}`}
                 >
                   <span className="text-xl w-7 text-center">{medals[i]}</span>
-                  <div className={`w-8 h-8 rounded-full ${AVATAR_COLORS[entry.avatarColor] ?? 'bg-gray-600'} flex items-center justify-center text-white text-sm font-bold`}>
-                    {entry.name[0]}
-                  </div>
+                  <AvatarIcon color={entry.avatarColor} className="w-8 h-8" animate={false} />
                   <div className="flex-1">
                     <p className={`text-sm font-semibold ${isMe ? 'text-purple-300' : 'text-white'}`}>
                       {entry.name} {isMe && '(我)'}
@@ -198,9 +190,7 @@ export function Dashboard() {
             {myRank > 3 && (
               <div className="flex items-center gap-3 p-2 rounded-xl bg-purple-500/15 border border-purple-500/30">
                 <span className="text-gray-400 text-sm w-7 text-center font-bold">#{myRank}</span>
-                <div className={`w-8 h-8 rounded-full ${AVATAR_COLORS[user.avatarColor] ?? 'bg-purple-500'} flex items-center justify-center text-white text-sm font-bold`}>
-                  {user.name[0]}
-                </div>
+                <AvatarIcon color={user.avatarColor} className="w-8 h-8" animate={false} />
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-purple-300">{user.name} (我)</p>
                   <p className="text-gray-500 text-xs">Lv.{user.level}</p>
