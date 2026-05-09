@@ -3,6 +3,7 @@ import { useParams, useNavigate, Navigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '../store/useGameStore'
 import { useAICoach, COACH_LINES } from '../hooks/useAICoach'
+import { useMusicPlayer } from '../hooks/useMusicPlayer'
 import { SettlementModal } from '../components/SettlementModal'
 import type { Task } from '../types'
 
@@ -94,6 +95,7 @@ export function WorkoutRoom() {
   const { taskId } = useParams<{ taskId: string }>()
   const navigate = useNavigate()
   const { speak, cancel } = useAICoach()
+  const { start: startAudio, stop: stopAudio, setMode: setAudioMode } = useMusicPlayer()
 
   // ── Store selectors (hooks) ──
   const todayTasks = useGameStore(s => s.todayTasks)
@@ -241,6 +243,9 @@ export function WorkoutRoom() {
   useEffect(() => {
     if (lastSettlement && settled) setShowModal(true)
   }, [lastSettlement, settled])
+
+  // Stop audio on unmount
+  useEffect(() => () => { stopAudio() }, [stopAudio])
 
   // ── NOW it is safe to do conditional returns ──
 
@@ -514,7 +519,15 @@ export function WorkoutRoom() {
               <div className="flex items-center justify-between mb-3">
                 <p className="text-white font-bold text-sm">🎵 运动音乐</p>
                 <button
-                  onClick={() => setMusicPlaying(p => !p)}
+                  onClick={() => {
+                    if (musicPlaying) {
+                      stopAudio()
+                      setMusicPlaying(false)
+                    } else {
+                      startAudio(musicMode)
+                      setMusicPlaying(true)
+                    }
+                  }}
                   className={`w-8 h-8 rounded-full flex items-center justify-center transition-all text-sm ${
                     musicPlaying ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
                   }`}
@@ -538,7 +551,15 @@ export function WorkoutRoom() {
                 {MUSIC_MODES.map(m => (
                   <button
                     key={m.id}
-                    onClick={() => { setMusicMode(m.id); setMusicPlaying(true) }}
+                    onClick={() => {
+                      setMusicMode(m.id)
+                      if (musicPlaying) {
+                        setAudioMode(m.id) // 无缝切换，不重启 AudioContext
+                      } else {
+                        startAudio(m.id)
+                        setMusicPlaying(true)
+                      }
+                    }}
                     className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all text-center border ${
                       musicMode === m.id
                         ? 'bg-purple-600/25 border-purple-500/50 text-white'
