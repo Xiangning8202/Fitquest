@@ -99,7 +99,7 @@ export function Onboarding() {
               </h1>
               <p className="text-gray-400 text-lg mb-2">把运动变成一场冒险</p>
               <p className="text-gray-500 text-sm mb-10 leading-relaxed">
-                AI 个性化任务 · 宿舍 Boss 战 · 成就徽章 · 荣耀排行榜
+                AI 个性化任务 · 小队 Boss 战 · 成就徽章 · 荣耀排行榜
               </p>
               <motion.button
                 whileHover={{ scale: 1.05 }}

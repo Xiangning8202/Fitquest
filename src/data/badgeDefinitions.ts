@@ -39,7 +39,7 @@ export const BADGE_DEFINITIONS: Omit<Badge, 'unlocked' | 'unlockedAt'>[] = [
   {
     id: 'boss_first',
     name: '战场英雄',
-    description: '首次参与宿舍 Boss 战，踏上征途',
+    description: '首次参与小队 Boss 战，踏上征途',
     icon: '⚔️',
     rarity: 'common',
   },

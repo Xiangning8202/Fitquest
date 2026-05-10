@@ -33,7 +33,7 @@ function getLevelTitle(level: number) {
 
 function computeEncouragement(totalDone: number, streak: number, combo: boolean, leveledUp: boolean, newLevel: number): string {
   if (totalDone === 1) return '欢迎来到 FitQuest！第一步永远是最重要的！'
-  if (combo) return '宿舍合击触发！你是小队今日的关键力量！'
+  if (combo) return '小队合击触发！你是小队今日的关键力量！'
   if (leveledUp) return `恭喜升到 Lv.${newLevel}！你变得更强大了！`
   if (streak >= 7) return `连续打卡 ${streak} 天，你就是大家的榜样！`
   if (streak >= 3) return `连续打卡 ${streak} 天，习惯正在悄悄养成！`

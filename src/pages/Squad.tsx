@@ -1,4 +1,5 @@
-import { motion } from 'framer-motion'
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '../store/useGameStore'
 import { AvatarIcon, AVATAR_BG } from '../components/AvatarIcon'
 
@@ -14,11 +15,94 @@ const ACTIVITY_FEED = [
   { name: '系统', action: 'Boss 受到了 85 点伤害', xp: null, time: '1小时前', emoji: '⚔️' },
 ]
 
+// ─── Invite Modal ─────────────────────────────────────────────────────────────
+
+function InviteModal({ onClose }: { onClose: () => void }) {
+  const [copied, setCopied] = useState(false)
+  const link = 'fitquest.app/invite/X7K2P9'
+
+  const handleCopy = () => {
+    navigator.clipboard?.writeText(`加入我的 FitQuest 小队，一起打 Boss！${link}`)
+      .catch(() => {})
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ y: 60, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 60, opacity: 0 }}
+        transition={{ type: 'spring', stiffness: 280, damping: 24 }}
+        onClick={e => e.stopPropagation()}
+        className="w-full max-w-sm bg-gray-900 border border-gray-700 rounded-3xl p-6"
+      >
+        <div className="text-center mb-5">
+          <div className="text-4xl mb-2">🤝</div>
+          <h3 className="text-white font-black text-lg">邀请队友加入小队</h3>
+          <p className="text-gray-400 text-sm mt-1">分享链接，一起打 Boss、刷排行！</p>
+        </div>
+
+        {/* Invite link box */}
+        <div className="bg-gray-800 border border-gray-700 rounded-2xl p-3.5 mb-4 flex items-center gap-3">
+          <span className="text-purple-400 text-sm font-mono flex-1 truncate">{link}</span>
+          <motion.button
+            whileTap={{ scale: 0.93 }}
+            onClick={handleCopy}
+            className={`text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex-shrink-0 ${
+              copied
+                ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                : 'bg-purple-600/30 text-purple-300 border border-purple-500/30 hover:bg-purple-600/50'
+            }`}
+          >
+            {copied ? '✓ 已复制' : '复制'}
+          </motion.button>
+        </div>
+
+        {/* Share options */}
+        <div className="grid grid-cols-3 gap-2 mb-5">
+          {[
+            { icon: '💬', label: '微信' },
+            { icon: '🔗', label: '链接' },
+            { icon: '📱', label: '二维码' },
+          ].map(s => (
+            <button
+              key={s.label}
+              onClick={handleCopy}
+              className="flex flex-col items-center gap-1.5 py-3 rounded-2xl bg-gray-800 border border-gray-700 hover:border-gray-600 transition-colors"
+            >
+              <span className="text-xl">{s.icon}</span>
+              <span className="text-gray-400 text-xs">{s.label}</span>
+            </button>
+          ))}
+        </div>
+
+        <button
+          onClick={onClose}
+          className="w-full py-3 rounded-2xl border border-gray-700 text-gray-400 text-sm font-medium hover:bg-gray-800 transition-colors"
+        >
+          关闭
+        </button>
+      </motion.div>
+    </motion.div>
+  )
+}
+
+// ─── Squad page ───────────────────────────────────────────────────────────────
+
 export function Squad() {
   const user = useGameStore(s => s.user)
   const boss = useGameStore(s => s.boss)
   const teammates = useGameStore(s => s.teammates)
   const squadCompleted = useGameStore(s => s.squadCompletedToday)
+  const [showInvite, setShowInvite] = useState(false)
 
   const bossHpPct = Math.round((boss.currentHp / boss.maxHp) * 100)
   const totalContribution = teammates.reduce((s, t) => s + t.contribution, 0) + user.totalDamageDealt
@@ -32,8 +116,8 @@ export function Squad() {
       <div className="relative max-w-lg mx-auto px-4 py-5 space-y-5">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-2xl font-black text-white mb-1">⚔️ 宿舍 Boss 战</h1>
-          <p className="text-gray-400 text-sm">与队友合力击败 Boss，守护宿舍荣耀</p>
+          <h1 className="text-2xl font-black text-white mb-1">⚔️ 小队 Boss 战</h1>
+          <p className="text-gray-400 text-sm">与队友合力击败 Boss，守护小队荣耀</p>
         </motion.div>
 
         {/* Boss card */}
@@ -95,7 +179,17 @@ export function Squad() {
           transition={{ delay: 0.2 }}
           className="bg-gray-900 border border-gray-800 rounded-2xl p-4"
         >
-          <h3 className="text-white font-bold mb-4">队伍贡献</h3>
+          <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-bold">队伍贡献</h3>
+              <motion.button
+                whileTap={{ scale: 0.94 }}
+                onClick={() => setShowInvite(true)}
+                className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-purple-600/20 border border-purple-500/30 text-purple-300 hover:bg-purple-600/35 transition-colors"
+              >
+                <span>+</span>
+                <span>添加队友</span>
+              </motion.button>
+            </div>
 
           <div className="space-y-3">
             {/* Current user */}
@@ -208,7 +302,7 @@ export function Squad() {
           className={`bg-gray-900 border rounded-2xl p-4 ${comboProgress >= COMBO_NEEDED ? 'border-yellow-500/50 bg-yellow-500/5' : 'border-gray-800'}`}
         >
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-white font-bold">⚡ 今日宿舍合击</h3>
+            <h3 className="text-white font-bold">⚡ 今日小队合击</h3>
             <span className={`text-lg font-black ${comboProgress >= COMBO_NEEDED ? 'text-yellow-400' : 'text-gray-400'}`}>
               {comboProgress} / {COMBO_NEEDED}
             </span>
@@ -270,6 +364,11 @@ export function Squad() {
           </div>
         </motion.div>
       </div>
+
+      {/* Invite modal */}
+      <AnimatePresence>
+        {showInvite && <InviteModal onClose={() => setShowInvite(false)} />}
+      </AnimatePresence>
     </div>
   )
 }

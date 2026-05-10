@@ -483,7 +483,7 @@ export function WorkoutRoom() {
             {/* Squad online */}
             <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-white font-bold text-sm">👥 宿舍燃脂小队</p>
+                <p className="text-white font-bold text-sm">👥 燃脂小队</p>
                 <span className="text-xs text-green-400 bg-green-400/10 border border-green-400/20 rounded-full px-2 py-0.5">在线</span>
               </div>
               <div className="flex gap-3 mb-3">

@@ -78,7 +78,7 @@ export function SettlementModal({ settlement, onClose }: Props) {
               transition={{ delay: 0.4 }}
               className="bg-gradient-to-r from-yellow-600/20 to-orange-600/20 border border-yellow-500/40 rounded-2xl p-3 text-center"
             >
-              <div className="text-yellow-400 font-black text-base">⚡ 宿舍合击触发！</div>
+              <div className="text-yellow-400 font-black text-base">⚡ 小队合击触发！</div>
               <div className="text-orange-300 text-sm font-semibold mt-0.5">额外造成 +{comboDamage} Boss 伤害</div>
               <div className="text-gray-400 text-xs mt-0.5">本次总伤害 {totalDamage}</div>
             </motion.div>
