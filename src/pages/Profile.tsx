@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { useGameStore, getLevelTitle, xpForNextLevel } from '../store/useGameStore'
 import { XPBar } from '../components/XPBar'
 import { AvatarIcon } from '../components/AvatarIcon'
+import { Mascot } from '../components/Mascot'
 import { LEADERBOARD_MOCK } from '../data/squadData'
 import type { Badge, UserProfile } from '../types'
 
@@ -40,39 +41,53 @@ function StreakCard({ streak }: { streak: number }) {
     return { label: ['日', '一', '二', '三', '四', '五', '六'][d.getDay()], done, isToday, isPulsing: isToday && !completedToday }
   })
 
+  const mascotVariant = (completedToday && streak > 0) ? 'celebrating' : 'idle'
+  const isLongStreak = streak >= 7
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.07 }}
-      className="relative overflow-hidden rounded-2xl border border-orange-500/25 p-5"
-      style={{ background: 'linear-gradient(135deg, rgba(124,45,18,0.35) 0%, rgba(17,17,27,0.9) 50%, rgba(59,7,100,0.35) 100%)' }}
+      className="relative overflow-hidden rounded-[20px] p-5"
+      style={{
+        background: 'linear-gradient(135deg, oklch(11% 0.022 40 / 0.6) 0%, oklch(16% 0.015 280) 50%, oklch(11% 0.022 295 / 0.5) 100%)',
+        border: isLongStreak
+          ? '1px solid oklch(72% 0.30 295 / 0.45)'
+          : '1px solid oklch(74% 0.21 48 / 0.22)',
+        boxShadow: isLongStreak
+          ? '0 0 24px oklch(72% 0.30 295 / 0.18)'
+          : 'none',
+      }}
     >
-      <div className="absolute -top-6 -left-6 w-36 h-36 bg-orange-500/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-6 -right-4 w-28 h-28 bg-purple-500/15 rounded-full blur-3xl pointer-events-none" />
+      {/* Left brand accent bar */}
+      <div className="absolute left-0 top-4 bottom-4 w-1 rounded-r-full"
+        style={{ background: 'var(--brand)' }} />
 
-      <div className="relative flex gap-4">
-        <div className="flex flex-col items-center justify-center gap-0.5 min-w-[68px]">
-          <motion.span
-            animate={{ y: [0, -5, 0], rotate: [-5, 5, -5] }}
-            transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-            className="text-4xl leading-none select-none"
-          >🔥</motion.span>
-          <span
-            className="font-black leading-none"
-            style={{
-              fontSize: streak >= 100 ? '2.6rem' : '3.5rem',
-              background: 'linear-gradient(180deg, #fdba74 0%, #f97316 60%, #ea580c 100%)',
-              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-            }}
-          >{streak}</span>
-          <span className="text-gray-500 text-xs">连续天数</span>
+      <div className="absolute -top-8 -left-8 w-40 h-40 rounded-full blur-3xl pointer-events-none"
+        style={{ background: 'oklch(74% 0.21 48 / 0.12)' }} />
+
+      <div className="relative flex gap-3 items-center">
+        {/* Mascot */}
+        <div className="flex-shrink-0 flex items-end" style={{ width: 68 }}>
+          <Mascot variant={mascotVariant} size={68} />
         </div>
 
-        <div className="w-px bg-orange-500/15 self-stretch" />
+        <div className="w-px self-stretch" style={{ background: 'oklch(74% 0.21 48 / 0.18)' }} />
 
-        <div className="flex-1 flex flex-col justify-between gap-3">
-          <p className="text-white text-sm font-semibold leading-snug">{getStreakMsg(streak, completedToday)}</p>
+        <div className="flex-1 flex flex-col gap-2 pl-1">
+          {/* Number + label */}
+          <div className="flex items-baseline gap-1.5">
+            <span
+              className="font-display font-black leading-none"
+              style={{
+                fontSize: streak >= 100 ? '2.8rem' : '3.6rem',
+                color: 'var(--fire)',
+              }}
+            >{streak}</span>
+            <span className="text-gray-500 text-xs">天</span>
+          </div>
+          <p className="text-white text-xs font-semibold leading-snug -mt-1">{getStreakMsg(streak, completedToday)}</p>
           <div className="flex gap-1 items-end">
             {days.map((d, i) => (
               <div key={i} className="flex flex-col items-center gap-1 flex-1">
@@ -133,7 +148,7 @@ function CompactStats({ user, unlockedCount }: { user: UserProfile; unlockedCoun
             className="flex-1 bg-gray-900/70 border border-gray-800 rounded-2xl px-3 py-3.5 flex flex-col items-center gap-1"
           >
             <span className="text-xl">{item.icon}</span>
-            <span className="text-white font-black text-xl leading-tight">{item.value}</span>
+            <span className="font-display font-black text-xl leading-tight text-white">{item.value}</span>
             <span className="text-gray-500 text-xs text-center">{item.label}</span>
           </motion.div>
         ))}

@@ -1,15 +1,15 @@
 import { NavLink } from 'react-router-dom'
+import { Home, Zap, Swords, User } from 'lucide-react'
 import { useGameStore } from '../store/useGameStore'
 import { AvatarIcon } from './AvatarIcon'
 
 const NAV_ITEMS = [
-  { to: '/', icon: '🏠', label: '主页' },
-  { to: '/quest', icon: '⚡', label: '任务' },
-  { to: '/squad', icon: '⚔️', label: '战队' },
-  { to: '/profile', icon: '👤', label: '我的' },
+  { to: '/', icon: Home,   label: '主页', end: true  },
+  { to: '/quest',   icon: Zap,    label: '任务', end: false },
+  { to: '/squad',   icon: Swords, label: '战队', end: false },
+  { to: '/profile', icon: User,   label: '我的', end: false },
 ]
 
-/** Top bar — fixed on mobile, relative (in flex shell) on desktop */
 export function NavHeader() {
   const user = useGameStore(s => s.user)
   return (
@@ -22,7 +22,7 @@ export function NavHeader() {
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-2">
           <span className="text-xl">🏋️</span>
-          <span className="font-bold text-white text-lg tracking-tight">FitQuest</span>
+          <span className="font-display font-bold text-white text-lg tracking-tight">FitQuest</span>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 bg-gray-800 rounded-full px-3 py-1">
@@ -36,7 +36,6 @@ export function NavHeader() {
   )
 }
 
-/** Bottom nav — fixed on mobile, relative (in flex shell) on desktop */
 export function NavFooter() {
   return (
     <nav className="
@@ -46,19 +45,38 @@ export function NavFooter() {
       flex-shrink-0
     ">
       <div className="flex">
-        {NAV_ITEMS.map(item => (
+        {NAV_ITEMS.map(({ to, icon: Icon, label, end }) => (
           <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.to === '/'}
+            key={to}
+            to={to}
+            end={end}
             className={({ isActive }) =>
-              `flex-1 flex flex-col items-center gap-0.5 py-3 transition-colors ${
-                isActive ? 'text-purple-400' : 'text-gray-500 hover:text-gray-300'
+              `flex-1 flex flex-col items-center gap-0.5 pt-3 pb-2 transition-colors relative ${
+                isActive ? 'text-[var(--neon)]' : 'text-gray-500 hover:text-gray-300'
               }`
             }
           >
-            <span className="text-xl">{item.icon}</span>
-            <span className="text-xs font-medium">{item.label}</span>
+            {({ isActive }) => (
+              <>
+                <Icon
+                  size={22}
+                  strokeWidth={1.75}
+                  className="transition-all"
+                  style={isActive
+                    ? { stroke: 'var(--neon)', fill: 'oklch(60% 0.24 295 / 0.18)' }
+                    : { stroke: 'var(--muted)', fill: 'none' }
+                  }
+                />
+                <span className="text-xs font-medium">{label}</span>
+                {/* Active dot indicator */}
+                {isActive && (
+                  <span
+                    className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
+                    style={{ background: 'var(--neon)', boxShadow: '0 0 4px var(--neon)' }}
+                  />
+                )}
+              </>
+            )}
           </NavLink>
         ))}
       </div>
@@ -66,7 +84,6 @@ export function NavFooter() {
   )
 }
 
-/** Combined export for backward compat if needed */
 export function Navbar() {
   return (
     <>

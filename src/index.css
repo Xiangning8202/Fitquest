@@ -2,10 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Safe-area CSS variables ─────────────────────────────────────────────── */
+/* ── Design tokens ───────────────────────────────────────────────────────── */
 :root {
+  /* Safe areas */
   --sat: env(safe-area-inset-top, 0px);
   --sab: env(safe-area-inset-bottom, 0px);
+
+  /* Color system · OKLCH */
+  --void:    oklch(11% 0.012 280);
+  --surface: oklch(16% 0.015 280);
+  --edge:    oklch(24% 0.018 280);
+  --muted:   oklch(42% 0.010 280);
+  --subtle:  oklch(62% 0.008 280);
+  --primary: oklch(95% 0.006 280);
+  --brand:   oklch(60% 0.24  295);
+  --neon:    oklch(72% 0.30  295);
+  --fire:    oklch(74% 0.21   48);
+  --success: oklch(68% 0.18  155);
+  --boss:    oklch(58% 0.26   20);
+
+  /* Mascot palette */
+  --mascot-body:  oklch(60% 0.24  295);
+  --mascot-belly: oklch(70% 0.16  295);
+  --mascot-shoe:  oklch(72% 0.30  295);
 }
 
 /* ── Base ────────────────────────────────────────────────────────────────── */
